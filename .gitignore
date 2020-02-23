@@ -1,0 +1,17 @@
+# ignore images
+*.eps
+*.jpg
+*.jpeg
+*.png
+*.pdf
+# ignore Fortran Compilation Products
+*.exe
+*.o
+*.mod
+# Ignore Output Files and Matlab data files
+*.mat
+*.zip
+# ignore mac DS_Store
+.DS_Store
+# ignore matlab backup files
+*.m~
