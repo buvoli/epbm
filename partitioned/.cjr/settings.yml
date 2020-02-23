@@ -1,0 +1,5 @@
+stack: ./clear-sd
+hostRoot: auto
+remoteName: fedora_uc
+configFiles:
+- local_config.yml

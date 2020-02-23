@@ -1,0 +1,28 @@
+build:
+  args:
+    # ---- user ----------------------------------------------------------------
+    USER_NAME: "user"
+    USER_PASSWORD: "Vh5kPbnwBV"
+    GRANT_SUDO: "TRUE"
+    USER_ID: "$(id -u)"
+    GROUP_ID: "$(id -g)"
+    # ---- languages -----------------------------------------------------------
+    LANG_C: "FALSE"
+    LANG_FORTRAN: "TRUE"
+    LANG_PYTHON3: "FALSE"
+    LANG_JULIA: "FALSE"
+    LANG_R: "FALSE"
+    LANG_LATEX: "FALSE"
+    # ---- libraries -----------------------------------------------------------
+    LIB_MATPLOTLIB : "FALSE"
+    LIB_LINALG : "TRUE"
+    LIB_OPENMPI: "TRUE"
+    # ---- dev enviroment ------------------------------------------------------
+    DEV_JUPYTER: "FALSE"
+    DEV_CLI: "FALSE"
+    # ---- package managers ----------------------------------------------------
+    PKGM_SPACK: "FALSE"
+files:
+  containerRoot: "/home/user"
+flags:
+  userns: keep-id

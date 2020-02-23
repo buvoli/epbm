@@ -1,0 +1,6 @@
+files:
+  resultPaths:
+  - results/kuramoto
+  - results/nikolaevskiy
+  - results/quasigeostrophic
+  - results/kdv
