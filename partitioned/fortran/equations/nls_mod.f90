@@ -14,15 +14,16 @@
 
 module nls_mod
 
-    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierwavenum, relerror_c
+    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierwavenum, relerror_c, antialias
     implicit none
     ! Numerical Parameters
-    integer,    parameter     :: Np                   = 2**10                          ! Number of spatial points (Must be Even)
+    integer,    parameter     :: Np                   = 2**10                         ! Number of spatial points (Must be Even)
     real(dp),   parameter     :: tspan(2)             = [ 0.0_dp, 15.0_dp ]           ! Time integration window
     logical,    parameter     :: reference_methods(3) = [ .true., .false., .true. ]   ! Methods for Reference Solution (ETDSDC,IMEXSDC,ETDRK)
     integer,    parameter     :: num_tests            = 16                            ! Number of Numerical Tests
     real,       parameter     :: smallest_F           = 5.0e3_dp                      ! Smallest Number of Function Evaluations
     real,       parameter     :: largest_F            = 5.0e5_dp                      ! Maximum Number of Function Evaluations
+    logical,    parameter     :: antialiasing_enabled = .true.                        ! determines if 2/3 antialiasing rule should be applied.
     ! Equation parameters
     real(dp), parameter         :: Lx       = 8.0_dp * PI     ! Spatial Domain Size
     character(len=*), parameter :: eqn_name = "nls"         ! used to save results to correct folder
@@ -74,12 +75,18 @@ module nls_mod
         y(:,1) = 1.0_dp + (1e-2_dp)*exp(2*PI*II*xs/Lx) ! NOTE: xs global var set in init
         call dfftw_execute(plan_forward(1))
         y0 = yh(:,1)
+        if(antialiasing_enabled) then
+            call antialias(y0)
+        endif
     end subroutine ic
 
     ! Linear Operator
     subroutine L(lambda)
         complex(dp), dimension(Np), intent(out) :: lambda
         lambda = -II * (ks**2)
+        if(antialiasing_enabled) then
+            call antialias(lambda)
+        endif
     end subroutine L
 
     ! Nonlinear Operator
@@ -99,6 +106,9 @@ module nls_mod
         y(:,tid) = (y(:,tid) * abs(y(:,tid))**2)
         call dfftw_execute(plan_forward)
         N_out = 2.0_dp * II * yh(:,tid);
+        if(antialiasing_enabled) then
+            call antialias(N_out)
+        endif
     end subroutine N
 
     ! Error Filter (Inf norm in physical space)
