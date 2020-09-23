@@ -16,17 +16,18 @@
 module quasigeostrophic_mod
 
     ! Module Parameters
-    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierwavenum, meshgrid, relerror_c
+    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierwavenum, meshgrid, relerror_c, antialias2d
     implicit none
     ! Numerical Parameters
-    integer,    parameter :: Nx                   = 2**8                          ! Number of x spatial points (Must be Even)
-    integer,    parameter :: Ny                   = 2**8                          ! Number of y spatial points (Must be Even)
+    integer,    parameter :: Nx                   = 2**9                          ! Number of x spatial points (Must be Even)
+    integer,    parameter :: Ny                   = 2**9                          ! Number of y spatial points (Must be Even)
     integer,    parameter :: Np                   = Nx * Ny                       ! Total Number of spatial points
     real(dp),   parameter :: tspan(2)             = [ 0.0_dp, 5.0_dp ]            ! Time integration window
     logical,    parameter :: reference_methods(3) = [ .true., .true., .false. ]   ! Methods for Reference Solution (ETDSDC,IMEXSDC,ETDRK)
     integer,    parameter :: num_tests            = 16                            ! Number of Numerical Tests
     real,       parameter :: smallest_F           = 1.5e3_dp                      ! Smallest Number of Function Evaluations
     real,       parameter :: largest_F            = 1.0e5_dp                      ! Maximum Number of Function Evaluations
+    logical,    parameter :: antialiasing_enabled = .true.                        ! determines if 2/3 antialiasing rule should be applied.
     ! Storage Arrays
     real(dp), parameter :: Lx       = 2.0_dp * PI
     real(dp), parameter :: Ly       = 2.0_dp * PI
@@ -87,12 +88,23 @@ module quasigeostrophic_mod
     subroutine ic()
         y(:,:,1) = (1.0_dp/8.0_dp) * exp(-8.0_dp*(2.0_dp*ys**2.0_dp + 0.5_dp*xs**2.0_dp - PI/4.0_dp)**2.0_dp)
         call dfftw_execute(plan_forward(1))
-        y0 = reshape(LAP * yh(:,:,1), (/ Nx*Ny /) )
+        if(antialiasing_enabled) then
+            call antialias2d(yh(:,:,1))
+        endif
+        y0 = reshape(LAP * yh(:,:,1), [ Nx * Ny ] )
     end subroutine ic
 
     subroutine L(lambda)
         complex(dp), dimension(Np), intent(out) :: lambda
-        lambda = reshape(-1.0_dp*beta*DX*ILAP - epsilon - v*(DX**8 + DY**8), (/ Np /))
+        complex(dp), allocatable :: l2d(:,:)
+        
+        allocate(l2d(Nx, Ny))
+        l2d = -1.0_dp*beta*DX*ILAP - epsilon - v*(DX**8 + DY**8)
+        if(antialiasing_enabled) then
+            call antialias2d(l2d)
+        endif
+
+        lambda = reshape(l2d, [ Np  ])
     end subroutine L
 
     ! Nonlinear Operator
@@ -124,6 +136,9 @@ module quasigeostrophic_mod
         call dfftw_execute(plan_backward(tid))
         y(:,:,tid)  = (1.0_dp/Np) * y(:,:,tid) * P_LAP(:,:,tid)
         call dfftw_execute(plan_forward(tid))
+        if(antialiasing_enabled) then
+            call antialias2d(N_temp(:,:,tid))
+        endif
         N_out  = reshape(N_temp(:,:,tid) - (DY * yh(:,:,tid)),[Np])
     end subroutine N
 
