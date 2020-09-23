@@ -14,7 +14,7 @@
 
 module kuramoto_mod
 
-    use tools_mod, only: PI, II, dp, logspace, plinspace, fourierwavenum, relerror_c
+    use tools_mod, only: PI, II, dp, logspace, plinspace, fourierwavenum, relerror_c, antialias
     implicit none
     ! Numerical Parameters
     integer,    parameter   :: Np                   = 2**10                         ! Number of spatial points (Must be Even)
@@ -23,6 +23,7 @@ module kuramoto_mod
     integer,    parameter   :: num_tests            = 16                            ! Number of Numerical Tests
     real,       parameter   :: smallest_F           = 1.0e2_dp                      ! Smallest Number of Function Evaluations
     real,       parameter   :: largest_F            = 2.0e5_dp                      ! Maximum Number of Function Evaluations
+    logical,    parameter   :: antialiasing_enabled = .true.                        ! determines if 2/3 antialiasing rule should be applied.
     ! Equation parameters
     real(dp),   parameter   :: Lx                   = 32.0_dp * PI      ! Spatial Domain Size
     real(dp),   parameter   :: epsilon              = 1.0_dp
@@ -73,12 +74,18 @@ module kuramoto_mod
         y(:,1) = cos(xs/16.0_dp)*(1.0_dp + sin(xs/16.0_dp)) ! NOTE: xs global var set in init
         call dfftw_execute(plan_forward(1))
         y0 = yh(:,1)
+        if(antialiasing_enabled) then
+            call antialias(y0)
+        endif
     end subroutine ic
 
     ! Linear Operator
     subroutine L(lambda)
         complex(dp), dimension(Np), intent(out) :: lambda
         lambda = -epsilon * (-ks**2 + ks**4)
+        if(antialiasing_enabled) then
+            call antialias(lambda)
+        endif
     end subroutine L
 
     ! Nonlinear Operator
@@ -98,6 +105,9 @@ module kuramoto_mod
         y(:,tid) = (y(:,tid)/Np)**2;
         call dfftw_execute(plan_forward(tid))
         N_out = -0.5_dp * II * ks * yh(:,tid);
+        if(antialiasing_enabled) then
+            call antialias(N_out)
+        endif
     end subroutine N
 
     ! Error Filter (Inf norm in physical space)
