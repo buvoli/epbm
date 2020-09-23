@@ -20,6 +20,10 @@ module tools_mod
     include "functions/fft.f90"
     include "functions/ifft.f90"
 
+    ! Anti-Alias routines
+    include "subroutines/antialias.f90"
+    include "subroutines/antialias2d.f90"
+
     ! Weights
     include "subroutines/weights.f90"
 
