@@ -15,7 +15,7 @@
 module nikolaevskiy_mod
 
     ! Module Parameters
-    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierWaveNum, relerror_c
+    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierWaveNum, relerror_c, antialias
     implicit none
     ! Numerical Parameters
     integer,    parameter :: Np                   = 2**12                         ! Number of spatial points (Must be Even)
@@ -24,6 +24,7 @@ module nikolaevskiy_mod
     integer,    parameter :: num_tests            = 16                            ! Number of Numerical Tests
     real,       parameter :: smallest_F           = 1e3_dp                        ! Smallest Number of Function Evaluations
     real,       parameter :: largest_F            = 1e5_dp                        ! Maximum Number of Function Evaluations
+    logical,    parameter :: antialiasing_enabled = .true.                        ! determines if 2/3 antialiasing rule should be applied.
     ! Equation parameters
     real(dp), parameter     :: Lx    = 150.0_dp * PI          ! Spatial Domain Size
     real(dp), parameter     :: r     = 0.25_dp
@@ -78,12 +79,18 @@ module nikolaevskiy_mod
         y(:,1) = sin(xs) + 0.1_dp * sin(xs/25.0_dp) ! NOTE: xs global var set in init
         call dfftw_execute(plan_forward)
         y0 = yh(:,1)
+        if(antialiasing_enabled) then
+            call antialias(y0)
+        endif
     end subroutine ic
 
     ! Linear Operator
     subroutine L(lambda)
         complex(dp), dimension(Np), intent(out) :: lambda
         lambda = (r - 1.0_dp)*(ks**2) - (alpha*II*ks**3) + (2*ks**4) + beta*(II*ks**5) - (ks**6)
+        if(antialiasing_enabled) then
+            call antialias(lambda)
+        endif
     end subroutine L
 
     ! Nonlinear Operator
@@ -104,6 +111,9 @@ module nikolaevskiy_mod
         y(:,tid) = (y(:,tid)/Np)**2;
         call dfftw_execute(plan_forward(tid))
         N_out = -0.5_dp * II * ks * yh(:,tid);
+        if(antialiasing_enabled) then
+            call antialias(N_out)
+        endif
     end subroutine N
 
     ! Error Filter (Inf norm in physical space)
