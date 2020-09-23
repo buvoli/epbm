@@ -14,15 +14,16 @@
 
 module kdv_mod
 
-    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierwavenum, relerror_c
+    use tools_mod, only: dp, PI, II, logspace, plinspace, fourierwavenum, relerror_c, antialias
     implicit none
     ! Numerical Parameters
-    integer,    parameter     :: Np                   = 2**8                          ! Number of spatial points (Must be Even)
+    integer,    parameter     :: Np                   = 2**9                          ! Number of spatial points (Must be Even)
     real(dp),   parameter     :: tspan(2)             = [ 0.d0, 3.6_dp/PI ]           ! Time integration window
     logical,    parameter     :: reference_methods(3) = [ .true., .true., .false. ]   ! Methods for Reference Solution (ETDSDC,IMEXSDC,ETDRK)
     integer,    parameter     :: num_tests            = 16                            ! Number of Numerical Tests
     real,       parameter     :: smallest_F           = 1.d3                          ! Smallest Number of Function Evaluations
     real,       parameter     :: largest_F            = 1.d5                          ! Maximum Number of Function Evaluations
+    logical,    parameter     :: antialiasing_enabled = .true.                        ! determines if 2/3 antialiasing rule should be applied.
     ! Equation parameters
     real(dp), parameter       :: Lx       = 2.0_dp        ! Spatial Domain Size
     real(dp), parameter       :: delta    = 2.2e-2_dp
@@ -75,12 +76,18 @@ module kdv_mod
         y(:,1) = cos(PI * xs) ! NOTE: xs global var set in init
         call dfftw_execute(plan_forward(1))
         y0 = yh(:,1)
+        if(antialiasing_enabled) then
+            call antialias(y0)
+        endif
     end subroutine ic
 
     ! Linear Operator
     subroutine L(lambda)
         complex(dp), dimension(Np), intent(out) :: lambda
         lambda = (-1.0_dp*(delta)**2)*((II*ks)**3)
+        if(antialiasing_enabled) then
+            call antialias(lambda)
+        endif
     end subroutine L
 
     ! Nonlinear Operator
@@ -100,6 +107,9 @@ module kdv_mod
         y(:,tid) = (y(:,tid)/Np)**2;
         call dfftw_execute(plan_forward(tid))
         N_out = -0.5_dp * II * ks * yh(:,tid);
+        if(antialiasing_enabled) then
+            call antialias(N_out)
+        endif
     end subroutine N
 
     ! Error Filter (Inf norm in physical space)
