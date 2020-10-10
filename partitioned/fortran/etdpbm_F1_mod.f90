@@ -82,7 +82,7 @@ module etdpbm_F1_mod
         interface
             subroutine N(t,yh_in, N_out, thread_id)
             import :: dp
-            real(dp),    intent(in)  :: t
+            complex(dp),    intent(in)  :: t
             complex(dp), intent(in)  :: yh_in(:)
             complex(dp), intent(out) :: N_out(:)
             integer, intent(in), optional :: thread_id
@@ -91,7 +91,8 @@ module etdpbm_F1_mod
 
         ! Local Variables
         integer  :: i, j, k, m, q, nL, LN_AII_len
-        real(dp) :: r, h, t
+        real(dp) :: r, h
+        complex(dp) :: t
         complex(dp), allocatable :: W_m(:,:,:), W_i(:,:,:)
         complex(dp), allocatable :: E_m(:,:),   E_i(:,:)
         complex(dp), allocatable :: y_n(:),     y_np1(:, :), N_n(:,:)

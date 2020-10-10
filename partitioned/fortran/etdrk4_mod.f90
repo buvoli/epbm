@@ -52,7 +52,7 @@ module etdrk4_mod
         interface
             subroutine N(t,yh_in, N_out, thread_id)
             import :: dp
-            real(dp),    intent(in)  :: t
+            complex(dp), intent(in)  :: t
             complex(dp), intent(in)  :: yh_in(:)
             complex(dp), intent(out) :: N_out(:)
             integer, intent(in), optional :: thread_id
@@ -61,7 +61,8 @@ module etdrk4_mod
 
         ! Local Variables
         integer :: i,nL
-        real(dp) :: h,t
+        real(dp) :: h
+        complex(dp) :: t
         complex(dp), allocatable :: y(:)
         complex(dp), allocatable, dimension(:) :: E, E2, A123, b1, b23, b4, Nv, Na, Nb, Nc, a, b, c
 

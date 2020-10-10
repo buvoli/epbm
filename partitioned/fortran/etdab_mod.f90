@@ -69,7 +69,7 @@ module etdab_mod
         interface
             subroutine N(t,yh_in, N_out, thread_id)
             import :: dp
-            real(dp),    intent(in)  :: t
+            complex(dp), intent(in)  :: t
             complex(dp), intent(in)  :: yh_in(:)
             complex(dp), intent(out) :: N_out(:)
             integer, intent(in), optional :: thread_id
@@ -78,7 +78,8 @@ module etdab_mod
 
         ! Local Variables
         integer  :: i, j, k, m, q, nL, LN_AII_len, lAII
-        real(dp) :: r, h, t
+        real(dp) :: r, h
+        complex(dp) :: t
         complex(dp), allocatable :: W_m(:,:), WA_m(:,:,:), W_i(:,:,:)
         complex(dp), allocatable :: E_m(:), EA_m(:,:), E_i(:,:)
         complex(dp), allocatable :: yA(:,:), y_n(:), N_n(:,:)

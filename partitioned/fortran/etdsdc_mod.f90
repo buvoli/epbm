@@ -67,7 +67,7 @@ module etdsdc_mod
         interface
             subroutine N(t,yh_in, N_out, thread_id)
             import :: dp
-            real(dp),    intent(in)  :: t
+            complex(dp), intent(in)  :: t
             complex(dp), intent(in)  :: yh_in(:)
             complex(dp), intent(out) :: N_out(:)
             integer, intent(in), optional :: thread_id
@@ -76,7 +76,8 @@ module etdsdc_mod
 
         ! Local Variables
         integer :: i,j,k,nn,m,nL
-        real(dp)    :: h,t
+        real(dp)    :: h
+        complex(dp) :: t
         complex(dp), allocatable :: W(:,:,:)
         complex(dp), allocatable :: P01(:,:,:)
         complex(dp), allocatable :: y_n(:,:), N_n(:,:), IW(:,:), n_new(:)

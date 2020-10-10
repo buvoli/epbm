@@ -66,7 +66,7 @@ module imexsdc_mod
         interface
             subroutine N(t,yh_in, N_out, thread_id)
             import :: dp
-            real(dp),    intent(in)  :: t
+            complex(dp), intent(in)  :: t
             complex(dp), intent(in)  :: yh_in(:)
             complex(dp), intent(out) :: N_out(:)
             integer, intent(in), optional :: thread_id
@@ -75,7 +75,8 @@ module imexsdc_mod
 
         ! Local Variables
         integer :: i,j,k,nn,m,nL
-        real(dp)    :: h,t, eta(size(options%tau)-1), IM(size(options%tau)-1,size(options%tau))
+        real(dp)    :: h, eta(size(options%tau)-1), IM(size(options%tau)-1,size(options%tau))
+        complex(dp) :: t
         complex(dp), allocatable :: phi(:,:), phi_n(:,:), IR(:,:),  D(:,:), n_new(:)
         real(dp), allocatable :: tau(:)
         tau = options%tau
