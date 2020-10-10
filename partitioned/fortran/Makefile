@@ -38,7 +38,7 @@ endif
 
 # Objects
 EQNS = quasigeostrophic_mod.o nikolaevskiy_mod.o kuramoto_mod.o kdv_mod.o nls_mod.o
-METHODS = etdrk4_mod.o etdsdc_mod.o imexsdc_mod.o etdab_mod.o etdpbm_mod.o etdpbm_F1_mod.o etdpbm_omp_mod.o etdpbm_F1_omp_mod.o
+METHODS = etdrk4_mod.o etdsdc_mod.o imexsdc_mod.o etdab_mod.o etdpbm_mod.o etdpbm_F1_mod.o etdpbm_omp_mod.o etdpbm_F1_omp_mod.o etdpbm_F1z_omp_mod.o
 PHI = phi_mod.o
 TOOLS = tools_mod.o
 

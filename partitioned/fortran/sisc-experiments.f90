@@ -18,6 +18,7 @@ program SiscExperiment
     use etdpbm_mod,  only: etdpbm,  etdpbm_settings
     !use etdpbm_omp_mod,   only: etdpbm_omp,   etdpbm_omp_settings
     use etdpbm_F1_omp_mod,  only: etdpbm_F1_omp, etdpbm_F1_omp_settings
+    use etdpbm_F1z_omp_mod,  only: etdpbm_F1z_omp, etdpbm_F1z_omp_settings
     use etdpbm_F1_mod,  only: etdpbm_F1, etdpbm_F1_settings
 
     implicit none
@@ -32,6 +33,7 @@ program SiscExperiment
     TYPE(etdpbm_settings)       :: etdpbm_s
     !TYPE(etdpbm_omp_settings)   :: etdpbm_omp_s
     TYPE(etdpbm_F1_omp_settings):: etdpbm_F1_omp_s
+    TYPE(etdpbm_F1z_omp_settings) :: etdpbm_F1z_omp_s
     TYPE(etdpbm_F1_settings)    :: etdpbm_F1_s
     integer, allocatable        :: ETD_SDC_orders(:), ETD_AB_orders(:), ETD_PBM_qs(:)
     real(dp)                    :: time(4)
@@ -101,7 +103,7 @@ program SiscExperiment
 
     ! === Run Numerical tests ==================================================
     write (*,"(a)") "Running Numerical Tests... "
-    num_methods = size(ETD_SDC_orders) + size(ETD_AB_orders) + 1 + 4 * size(ETD_PBM_qs)
+    num_methods = size(ETD_SDC_orders) + size(ETD_AB_orders) + 1 + 5 * size(ETD_PBM_qs)
     n_Fs = size(Fs)
     allocate(times(n_Fs,num_methods), errors(n_Fs,num_methods), Nts(n_Fs,num_methods), hs(n_Fs,num_methods))
     do i=1,n_Fs
@@ -201,6 +203,22 @@ program SiscExperiment
                 relcost = q
                 Nt = F/(relcost) + 1
                 call etdpbm_F1(lambda, N, tspan, y0, Nt, etdpbm_F1_s, y_out, time)
+                Nts(i,    j + shift) = Nt
+                errors(i, j + shift) = error_filter(y_out, y_reference)
+                times(i,  j + shift) = time(2)
+            enddo
+            shift = shift + size(ETD_PBM_qs)
+            ! Run EPBM Methods - Imaginary Nodes (Serial - alpha = 1, m = 0)
+            do j=1,size(ETD_PBM_qs)
+                q = ETD_PBM_qs(j)
+                etdpbm_F1z_omp_s%z     = [ (-1.0_dp, 0.0_dp), (0.0_dp, 1.0_dp) * linspace(-1.0_dp, 1.0_dp, q - 1)]
+                etdpbm_F1z_omp_s%b     = constvec_r(q, -1.0_dp)
+                etdpbm_F1z_omp_s%alpha = 2.0_dp
+                etdpbm_F1z_omp_s%m     = 0
+                etdpbm_F1z_omp_s%mS    = [1]
+                relcost = q
+                Nt = F/(relcost) + 1
+                call etdpbm_F1z_omp(lambda, N, tspan, y0, Nt, etdpbm_F1z_omp_s, y_out, time)
                 Nts(i,    j + shift) = Nt
                 errors(i, j + shift) = error_filter(y_out, y_reference)
                 times(i,  j + shift) = time(2)
