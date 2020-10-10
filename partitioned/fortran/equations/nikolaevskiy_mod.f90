@@ -95,7 +95,7 @@ module nikolaevskiy_mod
 
     ! Nonlinear Operator
     subroutine N(t,yh_in, N_out, thread_id)
-        real(dp),    intent(in) :: t
+        complex(dp),    intent(in) :: t
         complex(dp), dimension(:), intent(in)  :: yh_in
         complex(dp), dimension(:), intent(out) :: N_out
         integer, intent(in), optional :: thread_id

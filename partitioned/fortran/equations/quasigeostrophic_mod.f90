@@ -109,7 +109,7 @@ module quasigeostrophic_mod
 
     ! Nonlinear Operator
     subroutine N(t,LAP_P_H_in, N_out, thread_id)
-        real(dp),    intent(in) :: t
+        complex(dp),    intent(in) :: t
         complex(dp), dimension(:), intent(in)  :: LAP_P_H_in !Fourier transform of Laplacian if Phi
         complex(dp), dimension(:), intent(out) :: N_out
         integer, intent(in), optional :: thread_id
