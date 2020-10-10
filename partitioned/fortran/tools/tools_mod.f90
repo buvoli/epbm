@@ -26,6 +26,7 @@ module tools_mod
 
     ! Weights
     include "subroutines/weights.f90"
+    include "subroutines/weights_z.f90"
 
     ! File Output routines
     include "subroutines/write_cmatrix.f90"
@@ -64,6 +65,7 @@ module tools_mod
     ! Vector generation
     include "functions/constvec_i.f90"
     include "functions/constvec_r.f90"
+    include "functions/constvec_z.f90"
 
     ! LAPACK & BLAS wrappers
     include "subroutines/ZLU.f90"
