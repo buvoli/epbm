@@ -101,6 +101,8 @@ program SiscExperiment
     y_reference = y_reference/real(solution_count,8)
     write (*,"(a)") "done."
 
+    call write_cvector(y_reference, results_dir//eqn_name//"/reference.txt")
+
     ! === Run Numerical tests ==================================================
     write (*,"(a)") "Running Numerical Tests... "
     num_methods = size(ETD_SDC_orders) + size(ETD_AB_orders) + 1 + 5 * size(ETD_PBM_qs)
@@ -241,17 +243,23 @@ program SiscExperiment
             enddo
         endif
 
+        ! Save Partial Results
+        call write_rmatrix(Nts,         results_dir//eqn_name//"/Nts.txt")
+        call write_rmatrix(hs,          results_dir//eqn_name//"/hs.txt")
+        call write_rmatrix(errors,      results_dir//eqn_name//"/errors.txt")
+        call write_rmatrix(times,       results_dir//eqn_name//"/times.txt")
+        call write_rvector(Fs,          results_dir//eqn_name//"/Fs.txt")
+
     enddo
     write (*,"(a)") "done."
     ! Store stepsizes
     hs = (tspan(2) - tspan(1))/Nts
 
-    ! Save Results
+    ! Save Full Results
     call write_rmatrix(Nts,         results_dir//eqn_name//"/Nts.txt")
     call write_rmatrix(hs,          results_dir//eqn_name//"/hs.txt")
     call write_rmatrix(errors,      results_dir//eqn_name//"/errors.txt")
     call write_rmatrix(times,       results_dir//eqn_name//"/times.txt")
     call write_rvector(Fs,          results_dir//eqn_name//"/Fs.txt")
-    call write_cvector(y_reference, results_dir//eqn_name//"/reference.txt")
 
 end program SiscExperiment
