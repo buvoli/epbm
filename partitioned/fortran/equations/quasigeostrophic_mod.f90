@@ -19,8 +19,8 @@ module quasigeostrophic_mod
     use tools_mod, only: dp, PI, II, logspace, plinspace, fourierwavenum, meshgrid, relerror_c, antialias2d
     implicit none
     ! Numerical Parameters
-    integer,    parameter :: Nx                   = 2**8                          ! Number of x spatial points (Must be Even)
-    integer,    parameter :: Ny                   = 2**8                          ! Number of y spatial points (Must be Even)
+    integer,    parameter :: Nx                   = 2**9                          ! Number of x spatial points (Must be Even)
+    integer,    parameter :: Ny                   = 2**9                          ! Number of y spatial points (Must be Even)
     integer,    parameter :: Np                   = Nx * Ny                       ! Total Number of spatial points
     real(dp),   parameter :: tspan(2)             = [ 0.0_dp, 5.0_dp ]            ! Time integration window
     logical,    parameter :: reference_methods(3) = [ .true., .true., .false. ]   ! Methods for Reference Solution (ETDSDC,IMEXSDC,ETDRK)
