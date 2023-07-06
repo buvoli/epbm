@@ -102,9 +102,9 @@ module nls_mod
             tid = 1
         endif
         yh(:,tid) = yh_in/Np
-        call dfftw_execute(plan_backward)
+        call dfftw_execute(plan_backward(tid))
         y(:,tid) = (y(:,tid) * abs(y(:,tid))**2)
-        call dfftw_execute(plan_forward)
+        call dfftw_execute(plan_forward(tid))
         N_out = 2.0_dp * II * yh(:,tid);
         if(antialiasing_enabled) then
             call antialias(N_out)
