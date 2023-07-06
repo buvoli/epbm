@@ -63,9 +63,6 @@ module nikolaevskiy_mod
         allocate(ks(Np), xs(Np))
         ! set x domain
         xs = plinspace(-Lx/2.d0,Lx/2.d0,Np)
-        ! set FFT plans
-        call dfftw_plan_dft_1d_ (plan_forward, Np, y, yh, FFTW_FORWARD, FFTW_MEASURE)
-        call dfftw_plan_dft_1d_ (plan_backward, Np, yh, y, FFTW_BACKWARD, FFTW_MEASURE)
         ! set initial condition
         call ic()
         ! Set Fourier wave numbers
